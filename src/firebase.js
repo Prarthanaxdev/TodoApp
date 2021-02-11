@@ -4,8 +4,8 @@ import "firebase/firestore";
 const provider = new firebase.auth.GoogleAuthProvider();
 
 const firebaseConfig = {
-    //apiKey: "AIzaSyD6lcRnk_hbBf3xDMhPZCX5rK9JaSsSVAM",
-    apiKey : process.env.apiKey,
+    apiKey: "AIzaSyD6lcRnk_hbBf3xDMhPZCX5rK9JaSsSVAM",
+    //apiKey : process.env.apiKey,
     authDomain: "test-47c34.firebaseapp.com",
     projectId: "test-47c34",
     storageBucket: "test-47c34.appspot.com",
