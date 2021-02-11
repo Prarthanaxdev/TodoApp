@@ -4,7 +4,8 @@ import "firebase/firestore";
 const provider = new firebase.auth.GoogleAuthProvider();
 
 const firebaseConfig = {
-    apiKey: "AIzaSyD6lcRnk_hbBf3xDMhPZCX5rK9JaSsSVAM",
+    //apiKey: "AIzaSyD6lcRnk_hbBf3xDMhPZCX5rK9JaSsSVAM",
+    apiKey : process.env.apiKey,
     authDomain: "test-47c34.firebaseapp.com",
     projectId: "test-47c34",
     storageBucket: "test-47c34.appspot.com",
@@ -25,3 +26,37 @@ export const signInWithGoogle = () => {
 export const signOut = () => {
     auth.signInWithRedirect(provider);
 };
+
+export const generateUserDocument = async (user, additionalData) => {
+    console.log(user, additionalData)
+    if (!user) return;
+    const userRef = firestore.doc(`users/${user.uid}`);
+    const snapshot = await userRef.get();
+    if (!snapshot.exists) {
+        const { email, displayName } = user;
+        try {
+            await userRef.set({
+                email,
+                ...additionalData
+            });
+        } catch (error) {
+            console.error("Error creating user document", error);
+        }
+    }
+    return getUserDocument(user.uid);
+
+};
+
+const getUserDocument = async uid => {
+    if (!uid) return null;
+    try {
+      const userDocument = await firestore.doc(`users/${uid}`).get();
+      return {
+        uid,
+        ...userDocument.data()
+      };
+    } catch (error) {
+      console.error("Error fetching user", error);
+    }
+};
+
