@@ -4,8 +4,7 @@ import "firebase/firestore";
 const provider = new firebase.auth.GoogleAuthProvider();
 
 const firebaseConfig = {
-    apiKey: "AIzaSyD6lcRnk_hbBf3xDMhPZCX5rK9JaSsSVAM",
-    //apiKey : process.env.apiKey,
+    apiKey : process.env.REACT_APP_API_KEY,
     authDomain: "test-47c34.firebaseapp.com",
     projectId: "test-47c34",
     storageBucket: "test-47c34.appspot.com",
@@ -28,12 +27,11 @@ export const signOut = () => {
 };
 
 export const generateUserDocument = async (user, additionalData) => {
-    console.log(user, additionalData)
     if (!user) return;
     const userRef = firestore.doc(`users/${user.uid}`);
     const snapshot = await userRef.get();
     if (!snapshot.exists) {
-        const { email, displayName } = user;
+        const { email, displayName,photoURL } = user;
         try {
             await userRef.set({
                 email,
@@ -59,4 +57,3 @@ const getUserDocument = async uid => {
       console.error("Error fetching user", error);
     }
 };
-
