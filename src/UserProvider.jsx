@@ -1,26 +1,52 @@
-import React, { Component, createContext } from "react";
-import { auth,generateUserDocument } from "./firebase";
+import { auth, generateUserDocument } from "./firebase";
+import React, { useState, useEffect } from "react";
+import firebase from "firebase/app";
 
-export const UserContext = createContext({ user: null });
+export const UserContext = React.createContext();
 
-class UserProvider extends Component {
-  state = {
-    user: null
-  };
+const UserProvider = ({ children }) => {
+  const [user, setCurrentUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  componentDidMount = async () => {
+  useEffect(() => {
     auth.onAuthStateChanged(async userAuth => {
-      const user = await generateUserDocument(userAuth);
-      this.setState({ user });
+
+      if(window.location.pathname==='/signUp'){
+        setCurrentUser(null);
+        setIsLoading(false)
+
+      }else{
+        const user = await generateUserDocument(userAuth);
+
+        if(user){
+          if(userAuth.emailVerified == true){
+            setCurrentUser(userAuth);
+            setIsLoading(false)
+          }else{
+            setCurrentUser(user);
+            setIsLoading(false)
+          }
+        }else{
+          setCurrentUser(null);
+          setIsLoading(false)
+        }
+      }
     });
-  };
-  
-  render() {
-    return (
-      <UserContext.Provider value={this.state.user}>
-        {this.props.children}
-      </UserContext.Provider>
-    );
-  }
+
+    // const unsubscribe = onAuthStateChange(setCurrentUser);
+    // return () => {
+    //   unsubscribe();
+    // };
+
+  }, []);
+
+  return (
+    <UserContext.Provider
+      value={{ user, isLoading }}
+    >
+      {children}
+    </UserContext.Provider>
+  );
 }
+
 export default UserProvider;
