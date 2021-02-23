@@ -1,6 +1,8 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
+import axios from 'axios';
+
 const provider = new firebase.auth.GoogleAuthProvider();
 
 const firebaseConfig = {
@@ -17,7 +19,6 @@ firebase.initializeApp(firebaseConfig);
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
-
 
 export const signInWithGoogle = () => {
     auth.signInWithPopup(provider);
@@ -61,4 +62,12 @@ const getUserDocument = async uid => {
         console.error("Error fetching user", error);
     }
 };
+
+export const signOutUser =()=>{
+    axios.post('http://localhost:5000/removeSession')
+    .then(function (response) {
+      console.log(response);
+    })
+    auth.signOut()
+  }
 

@@ -27,9 +27,7 @@ const SignIn = () => {
     };
 
     const createUser = async (event, email, password) => {
-        //event.preventDefault();
         try {
-
             const  {user} = await auth.createUserWithEmailAndPassword(email, password);
             generateUserDocument(user, { displayName });
             auth.signOut()

@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { UserContext } from "../UserProvider";
-import { auth, firestore } from "../firebase";
+import { auth, firestore,signOutUser } from "../firebase";
 import Grid from '@material-ui/core/Grid';
 import "../App.css";
 import image from './logo192.png'
@@ -14,6 +14,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import AddIcon from '@material-ui/icons/Add';
+import axios from 'axios';
 
 const ProfilePage = () => {
   const user = useContext(UserContext);
@@ -27,44 +28,96 @@ const ProfilePage = () => {
   const [addSubtodo, setAddSub] = useState('');
   const [subtodo, setSubTodos] = useState([])
   const [clicked, setClicked] = useState(false);
+  const [subTodoupdate, setEditSubTodo] = useState(false);
 
-  const [subTodoupdate,setEditSubTodo] = useState(false);
+  useEffect(() => {  
+    let todoObj=[]
 
-  useEffect(() => {
+    firestore.collection("todos").where('userId', '==', user.user.uid).get().then((doc)=>{
+      doc.forEach(function (doc) {
+        let x = {
+          title: doc.data().title,
+          id: doc.id, 
+          uid : user.user.uid
+        }
+        todoObj.push(x);
+      })
+      axios.post('http://localhost:5000/setData', {
+        todoObj
+      })
+      .then(function (response) {
+        console.log(response);
+      })
+    })
+
     getTodos();
-  }, [])
+
+    // window.onbeforeunload = function(e) {
+    //   axios.post('http://localhost:5000/removeSession')
+    //   .then(function (response) {
+    //     console.log(response);
+    //   })
+    // };
+
+  },[])
 
   const getTodos = () => {
-    firestore.collection("todos").where('userId', '==', user.user.uid).onSnapshot(function (querySnapshot) {
+
+    console.log("HERERRERERERRERERRE")
+    axios.get('http://localhost:5000/getData/'+user.user.uid)
+    .then(function (response) {
+
+      console.log("response",response.data);
       setTodos(
-        querySnapshot.docs.map((doc) => ({
+        response.data.map((doc) => ({
           id: doc.id,
-          title: doc.data().title,
+          title: doc.title,
         }))
       )
-
-      let items = []
-
-      querySnapshot.docs.map((doc) => {
-
-      firestore.collection("subTodos").where('todoId', '==', doc.id).get().then((doc)=>{
-
-        doc.forEach(function (doc1){
-          console.log(doc1.data())
-            let x ={
-              subTodos : doc1.data(),
-              id : doc1.id
-            }
-            items.push(x);
-        })
-        setSubTodos({ ...subtodo, items })
-
-      })
-      })
     })
   }
 
+  // const getTodos = () => {
+  //   firestore.collection("todos").where('userId', '==', user.user.uid).onSnapshot(function (querySnapshot) {
+  //     setTodos(
+  //       querySnapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         title: doc.data().title,
+  //       }))
+  //     )
 
+  //     // querySnapshot.docs.map((doc) => {
+  //     //   axios.post('http://localhost:5000/setData', {
+  //     //     id: doc.id,
+  //     //     title: doc.data().title,
+  //     //   })
+  //     //     .then(function (response) {
+  //     //       console.log(response);
+  //     //     })
+  //     // })
+
+  //     let items = []
+
+  //     querySnapshot.docs.map((doc) => {
+  //       firestore.collection("subTodos").where('todoId', '==', doc.id).get().then((doc) => {
+
+  //         doc.forEach(function (doc1) {
+  //           console.log(doc1.data())
+  //           let x = {
+  //             subTodos: doc1.data(),
+  //             id: doc1.id
+  //           }
+  //           items.push(x);
+  //         })
+  //         setSubTodos({ ...subtodo, items })
+
+  //       })
+  //     })
+  //   })
+  // }
+
+
+  
   const onChangeHandler = (event) => {
     const { name, value } = event.currentTarget;
 
@@ -87,28 +140,48 @@ const ProfilePage = () => {
   }
 
   const addTodo = () => {
-    firestore.collection("todos").add({
-      todo: todo,
-      title: title,
+    // firestore.collection("todos").add({
+    //   todo: todo,
+    //   title: title,
+    //   userId: user.user.uid
+    // })
+
+    axios.post('http://localhost:5000/addNewTodo', {
+      title : title,
       userId: user.user.uid
     })
+    .then(function (response) {
+      console.log(response);
+    })
+
     setTodo('');
     setTitle('');
+    setTimeout(()=>{
+      getTodos()
+
+    },1000)
   }
 
   const deleteTodo = (id) => {
-    firestore.collection("todos").doc(id).delete();
-    // getTodos()
+
+    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&", id)
+    axios.post('http://localhost:5000/deleteTodo', {
+      id : id,
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+
+    addTodo()
+    // firestore.collection("todos").doc(id).delete();
   }
 
-  const deleteSubTodo =(id)=>{
-    // setEditId(id)
+  const deleteSubTodo = (id) => {
     firestore.collection("subTodos").doc(id).delete();
     getTodos()
-
   }
 
-  const editSubTodo =(id,name)=>{
+  const editSubTodo = (id, name) => {
     setEditSubTodo(true)
     setEditId(id)
     setEditField(name);
@@ -127,7 +200,7 @@ const ProfilePage = () => {
     handleClose();
   }
 
-  const updateSubTodo =()=>{
+  const updateSubTodo = () => {
     firestore.collection("subTodos").doc(editId).update({
       todo: editField
     });
@@ -143,7 +216,6 @@ const ProfilePage = () => {
   }
 
   const addSub = () => {
-
     firestore.collection("subTodos").add({
       todo: addSubtodo,
       todoId: editId
@@ -167,7 +239,7 @@ const ProfilePage = () => {
 
   if (todos != '') {
     let name = ""
-    todos.map((ob) => {
+    todos.map((ob,i) => {
       let list = []
 
       if (subtodo != '') {
@@ -178,16 +250,23 @@ const ProfilePage = () => {
               <DeleteIcon className='editIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteSubTodo(obj.id)} />
               <EditIcon className='editIcon' style={{ "marginLeft": "8px" }} onClick={() => editSubTodo(obj.id, obj.subTodos.todo)}></EditIcon>
             </div>
-
             )
           }
         })
       }
 
+      let id = 0
+
+      if(ob.id != undefined){
+        id = ob.id
+      }else {
+        id = i
+      }
+
       todoList.push(<Grid container xs={3} spacing={2} className="todosDiv" style={{ "margin": '10px' }} >
         <div style={{ 'display': 'flex' }}>
           <p class="todoTitle" >{ob.title}</p>
-          <DeleteIcon className='deleteIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteTodo(ob.id)} />
+          <DeleteIcon className='deleteIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteTodo(id)} />
           <EditIcon className='deleteIcon' style={{ "marginLeft": "8px" }} onClick={() => editTodo(ob.id, ob.title)}></EditIcon>
         </div>
         {list}
@@ -217,7 +296,7 @@ const ProfilePage = () => {
         </Grid>
 
         <Grid container xs={1} spacing={2}  >
-          <PowerSettingsNewIcon className="logout" title="Click here to signout" onClick={() => { auth.signOut() }} />
+          <PowerSettingsNewIcon className="logout" title="Click here to signout" onClick={() => { signOutUser() }} />
         </Grid>
       </Grid>
 
@@ -228,24 +307,20 @@ const ProfilePage = () => {
             <TextField id="standard-basic"
               label="Todo Title"
               name='title'
-              style={{ 'marginLeft': '25px',"width": "92%" }}
+              style={{ 'marginLeft': '25px', "width": "92%" }}
               value={title}
               onChange={(event) => onChangeHandler(event)}
             />
           </Grid>
 
-         
-
           <Grid container xs={3} spacing={1} >
             <Button className="submit" style={{ 'marginTop': '14px', 'marginLeft': '45px', 'width': '25%', 'height': '45%' }} onClick={addTodo}>Add Todo</Button>
           </Grid>
-
         </Grid>
 
         <Grid container xs={12} spacing={2} >
           {todoList}
         </Grid>
-
       </Grid>
 
       <Dialog open={editTodoFlag} onClose={handleClose} aria-labelledby="form-dialog-title">
