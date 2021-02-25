@@ -30,56 +30,64 @@ const ProfilePage = () => {
   const [clicked, setClicked] = useState(false);
   const [subTodoupdate, setEditSubTodo] = useState(false);
 
-  useEffect(() => {
-    let todoObj = []
-
-    firestore.collection("todos").where('userId', '==', user.user.uid).get().then((doc) => {
-      doc.forEach(function (doc) {
-        let x = {
-          title: doc.data().title,
-          id: doc.id,
-          uid: user.user.uid
-        }
-        todoObj.push(x);
-      })
-      axios.post('http://localhost:5000/setData', {
-        todoObj
-      })
-      .then(function (response) {
-        getTodos();       
-      })
-
-      let items = []
-
-      doc.forEach(function (doc) {
-        firestore.collection("subTodos").where('todoId', '==', doc.id).get().then((doc1) => {
-
-          doc1.forEach(function (doc2) {
-            let x = {
-              subTodo: doc2.data().todo,
-              subTodoId: doc2.id,
-              id: doc2.data().todoId
-            }
-            items.push(x);
-          })
-
-          axios.post('http://localhost:5000/setSubtodo', {
-            items
-          })
-          .then(function (response) {
-            getTodos();       
-          })
-        })
-      })
+  useEffect(()=>{
+    axios.post('http://localhost:5000/setData', {
+      uid : user.user.uid
     })
+    .then(function (response) {
+      console.log("RESPONSE", response)
+      getTodos();
+  })
 
+  // useEffect(() => {
+  //   let todoObj = []
 
-    // window.onbeforeunload = function(e) {
-    //   axios.post('http://localhost:5000/removeSession')
-    //   .then(function (response) {
-    //     console.log(response);
-    //   })
-    // };
+  //   firestore.collection("todos").where('userId', '==', user.user.uid).get().then((doc) => {
+  //     doc.forEach(function (doc) {
+  //       let x = {
+  //         title: doc.data().title,
+  //         id: doc.id,
+  //         uid: user.user.uid
+  //       }
+  //       todoObj.push(x);
+  //     })
+  //     axios.post('http://localhost:5000/setData', {
+  //       todoObj
+  //     })
+  //       .then(function (response) {
+  //         getTodos();
+  //       })
+
+  //     let items = []
+
+  //     doc.forEach(function (doc) {
+  //       firestore.collection("subTodos").where('todoId', '==', doc.id).get().then((doc1) => {
+
+  //         doc1.forEach(function (doc2) {
+  //           let x = {
+  //             subTodo: doc2.data().todo,
+  //             subTodoId: doc2.id,
+  //             id: doc2.data().todoId
+  //           }
+  //           items.push(x);
+  //         })
+
+  //         axios.post('http://localhost:5000/setSubtodo', {
+  //           items
+  //         })
+  //           .then(function (response) {
+  //             getTodos();
+  //           })
+  //       })
+  //     })
+  //   })
+
+  //   window.addEventListener('beforeunload',(e) => {      
+  //     axios.post('http://localhost:5000/removeSession')
+  //     .then(function (response) {
+  //       console.log(response);
+  //     })
+  //   });
 
   }, [])
 
@@ -98,17 +106,17 @@ const ProfilePage = () => {
 
         response.data.map((doc) => {
           axios.get('http://localhost:5000/getSubtodos/' + doc.id)
-          .then(function (response) {
-            response.data.forEach(function (doc) {
-              let x = {
-                id: doc.id,
-                subTodo: doc.subTodo,
-                subTodoId: doc.subTodoId
-              }
-              items.push(x)
+            .then(function (response) {
+              response.data.forEach(function (doc) {
+                let x = {
+                  id: doc.id,
+                  subTodo: doc.subTodo,
+                  subTodoId: doc.subTodoId
+                }
+                items.push(x)
+              })
+              setSubTodos({ ...subtodo, items })
             })
-            setSubTodos({ ...subtodo, items })
-          })
         })
       })
   }
@@ -139,10 +147,10 @@ const ProfilePage = () => {
       title: title,
       userId: user.user.uid
     })
-    .then(function (response) {
-      getTodos()
-      console.log(response);
-    })
+      .then(function (response) {
+        getTodos()
+        console.log(response);
+      })
 
     setTodo('');
     setTitle('');
@@ -152,33 +160,31 @@ const ProfilePage = () => {
     axios.post('http://localhost:5000/deleteTodo', {
       id: id,
     })
-    .then(function (response) {
-      console.log(response);
-      getTodos()
-    })
+      .then(function (response) {
+        console.log(response);
+        getTodos()
+      })
   }
 
   const deleteSubTodo = (id) => {
-
-    console.log("&&&&&&&&", id)
     axios.post('http://localhost:5000/deleteSubTodo', {
       id: id,
     })
-    .then(function (response) {
-      console.log(response);
-      getTodos()
-    })
+      .then(function (response) {
+        console.log(response);
+        getTodos()
+      })
   }
 
   const addSub = () => {
     axios.post('http://localhost:5000/addNewSubTodo', {
-      subTodo : addSubtodo,
-      todoId : editId
+      subTodo: addSubtodo,
+      todoId: editId
     })
-    .then(function (response) {
-      getTodos()
-      console.log(response);
-    })
+      .then(function (response) {
+        getTodos()
+        console.log(response);
+      })
 
     handleClose()
     setAddSub('');
@@ -186,14 +192,32 @@ const ProfilePage = () => {
 
   const updateTodo = () => {
     axios.post('http://localhost:5000/updateTodo', {
-      id : editId,
-      title : editField
+      id: editId,
+      title: editField
+    })
+      .then(function (response) {
+        getTodos()
+        console.log(response);
+      })
+    handleClose();
+  }
+
+  const updateSubTodo = () => {
+    console.log("HERE")
+    axios.post('http://localhost:5000/updateSubTodo', {
+      id: editId,
+      title: editField
     })
     .then(function (response) {
       getTodos()
       console.log(response);
     })
     handleClose();
+    // firestore.collection("subTodos").doc(editId).update({
+    //   todo: editField
+    // });
+    // getTodos()
+    // handleClose();
   }
 
   const editSubTodo = (id, name) => {
@@ -208,19 +232,12 @@ const ProfilePage = () => {
     setEditField(name);
   }
 
-  const updateSubTodo = () => {
-    firestore.collection("subTodos").doc(editId).update({
-      todo: editField
-    });
-    getTodos()
-    handleClose();
-  }
-
   const handleClose = () => {
     setEditTodo(false)
     setSubTodo(false)
     setAddSub('');
     setEditSubTodo(false)
+    setEditField('');
   }
 
   const addSubtodos = (id) => {
