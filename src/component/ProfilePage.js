@@ -30,100 +30,129 @@ const ProfilePage = () => {
   const [clicked, setClicked] = useState(false);
   const [subTodoupdate, setEditSubTodo] = useState(false);
 
-  useEffect(()=>{
+  useEffect(() => {
     axios.post('http://localhost:5000/setData', {
-      uid : user.user.uid
+      uid: user.user.uid
     })
-    .then(function (response) {
-      console.log("RESPONSE", response)
-      getTodos();
-  })
+      .then(function (response) {
+        console.log("RESPONSE", response)
+        getTodos();
+      })
 
-  // useEffect(() => {
-  //   let todoObj = []
+    // useEffect(() => {
+    //   let todoObj = []
 
-  //   firestore.collection("todos").where('userId', '==', user.user.uid).get().then((doc) => {
-  //     doc.forEach(function (doc) {
-  //       let x = {
-  //         title: doc.data().title,
-  //         id: doc.id,
-  //         uid: user.user.uid
-  //       }
-  //       todoObj.push(x);
-  //     })
-  //     axios.post('http://localhost:5000/setData', {
-  //       todoObj
-  //     })
-  //       .then(function (response) {
-  //         getTodos();
-  //       })
+    //   firestore.collection("todos").where('userId', '==', user.user.uid).get().then((doc) => {
+    //     doc.forEach(function (doc) {
+    //       let x = {
+    //         title: doc.data().title,
+    //         id: doc.id,
+    //         uid: user.user.uid
+    //       }
+    //       todoObj.push(x);
+    //     })
+    //     axios.post('http://localhost:5000/setData', {
+    //       todoObj
+    //     })
+    //       .then(function (response) {
+    //         getTodos();
+    //       })
 
-  //     let items = []
+    //     let items = []
 
-  //     doc.forEach(function (doc) {
-  //       firestore.collection("subTodos").where('todoId', '==', doc.id).get().then((doc1) => {
+    //     doc.forEach(function (doc) {
+    //       firestore.collection("subTodos").where('todoId', '==', doc.id).get().then((doc1) => {
 
-  //         doc1.forEach(function (doc2) {
-  //           let x = {
-  //             subTodo: doc2.data().todo,
-  //             subTodoId: doc2.id,
-  //             id: doc2.data().todoId
-  //           }
-  //           items.push(x);
-  //         })
+    //         doc1.forEach(function (doc2) {
+    //           let x = {
+    //             subTodo: doc2.data().todo,
+    //             subTodoId: doc2.id,
+    //             id: doc2.data().todoId
+    //           }
+    //           items.push(x);
+    //         })
 
-  //         axios.post('http://localhost:5000/setSubtodo', {
-  //           items
-  //         })
-  //           .then(function (response) {
-  //             getTodos();
-  //           })
-  //       })
-  //     })
-  //   })
+    //         axios.post('http://localhost:5000/setSubtodo', {
+    //           items
+    //         })
+    //           .then(function (response) {
+    //             getTodos();
+    //           })
+    //       })
+    //     })
+    //   })
 
-  //   window.addEventListener('beforeunload',(e) => {      
-  //     axios.post('http://localhost:5000/removeSession')
-  //     .then(function (response) {
-  //       console.log(response);
-  //     })
-  //   });
+    window.addEventListener('beforeunload', (e) => {
+      axios.post('http://localhost:5000/removeSession')
+        .then(function (response) {
+          console.log(response);
+        })
+    });
 
   }, [])
 
   const getTodos = () => {
+    let j= 0
     axios.get('http://localhost:5000/getData/' + user.user.uid)
-      .then(function (response) {
-        console.log("response", response.data);
-        setTodos(
-          response.data.map((doc) => ({
+    .then(function (response) {
+      console.log("response", response.data);
+      // response.data.subtodos.map((doc) => {
+      //   console.log("HHHHHHH", doc)
+      //   // let x = {
+      //   //   id: doc.id,
+      //   //   subTodo: doc.subTodo,
+      //   //   subTodoId: doc.subTodoId
+      //   // }
+      //   // items.push(x)
+      // })
+      // setSubTodos({ ...subtodo, items })
+
+      let items=[]
+
+      response.data.map((doc) => {
+        doc.subtodos.forEach(function (doc1) {
+          let x = {
             id: doc.id,
-            title: doc.title,
-          }))
-        )
-
-        let items = []
-
-        response.data.map((doc) => {
-          axios.get('http://localhost:5000/getSubtodos/' + doc.id)
-            .then(function (response) {
-              response.data.forEach(function (doc) {
-                let x = {
-                  id: doc.id,
-                  subTodo: doc.subTodo,
-                  subTodoId: doc.subTodoId
-                }
-                items.push(x)
-              })
-              setSubTodos({ ...subtodo, items })
-            })
+            subTodo: doc1.subTodo,
+            subTodoId: doc1.subTodoId
+          }
+          items.push(x)
         })
+        setSubTodos({ ...subtodo, items })
       })
+
+      setTodos(
+        response.data.map((doc) => ({
+          id: doc.id,
+          title: doc.title,
+        }))
+      )
+
+
+    //   response.data.map((doc) => {
+    //     axios.get('http://localhost:5000/getSubtodos/' + doc.id)
+    //       .then(function (response) {
+
+    //         console.log("SUBTODO", response)
+    //         response.data.forEach(function (doc) {
+    //           let x = {
+    //             id: doc.id,
+    //             subTodo: doc.subTodo,
+    //             subTodoId: doc.subTodoId
+    //           }
+    //           items.push(x)
+    //         })
+    //         setSubTodos({ ...subtodo, items })
+    //       })
+    //   })
+    })
   }
+
+
+  console.log("&&&&&&&&&", subtodo)
 
   const onChangeHandler = (event) => {
     const { name, value } = event.currentTarget;
-
     if (name === 'title') {
       setTitle(value);
     }
@@ -203,7 +232,7 @@ const ProfilePage = () => {
   }
 
   const updateSubTodo = () => {
-    console.log("HERE")
+    // console.log("HERE")
     axios.post('http://localhost:5000/updateSubTodo', {
       id: editId,
       title: editField
@@ -213,11 +242,6 @@ const ProfilePage = () => {
       console.log(response);
     })
     handleClose();
-    // firestore.collection("subTodos").doc(editId).update({
-    //   todo: editField
-    // });
-    // getTodos()
-    // handleClose();
   }
 
   const editSubTodo = (id, name) => {
@@ -330,6 +354,7 @@ const ProfilePage = () => {
 
           <Grid container xs={3} spacing={1} >
             <Button className="submit" style={{ 'marginTop': '14px', 'marginLeft': '45px', 'width': '25%', 'height': '45%' }} onClick={addTodo}>Add Todo</Button>
+            <div className='errorMessage'>Please enter a value</div>
           </Grid>
         </Grid>
 
