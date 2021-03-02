@@ -95,18 +95,6 @@ const ProfilePage = () => {
     let j= 0
     axios.get('http://localhost:5000/getData/' + user.user.uid)
     .then(function (response) {
-      console.log("response", response.data);
-      // response.data.subtodos.map((doc) => {
-      //   console.log("HHHHHHH", doc)
-      //   // let x = {
-      //   //   id: doc.id,
-      //   //   subTodo: doc.subTodo,
-      //   //   subTodoId: doc.subTodoId
-      //   // }
-      //   // items.push(x)
-      // })
-      // setSubTodos({ ...subtodo, items })
-
       let items=[]
 
       response.data.map((doc) => {
@@ -147,9 +135,6 @@ const ProfilePage = () => {
     //   })
     })
   }
-
-
-  console.log("&&&&&&&&&", subtodo)
 
   const onChangeHandler = (event) => {
     const { name, value } = event.currentTarget;
@@ -195,14 +180,15 @@ const ProfilePage = () => {
       })
   }
 
-  const deleteSubTodo = (id) => {
+  const deleteSubTodo = (Subtodoid, todoId) => {
     axios.post('http://localhost:5000/deleteSubTodo', {
-      id: id,
+      subTodoId: Subtodoid,
+      todoId : todoId
     })
-      .then(function (response) {
-        console.log(response);
-        getTodos()
-      })
+    .then(function (response) {
+      console.log(response);
+      getTodos()
+    })
   }
 
   const addSub = () => {
@@ -286,21 +272,13 @@ const ProfilePage = () => {
           if (obj.id == ob.id) {
             list.push(<div style={{ "display": 'flex' }}>
               <li style={{ 'marginTop': '7px', 'marginLeft': '14px', 'wordBreak': 'break-all' }}>{obj.subTodo}</li>
-              <DeleteIcon className='editIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteSubTodo(obj.subTodoId)} />
+              <DeleteIcon className='editIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteSubTodo(obj.subTodoId, ob.id)} />
               <EditIcon className='editIcon' style={{ "marginLeft": "8px" }} onClick={() => editSubTodo(obj.subTodoId, obj.subTodo)}></EditIcon>
             </div>
             )
           }
         })
       }
-
-      // let id = 0
-
-      // if (ob.id != undefined) {
-      //   id = ob.id
-      // } else {
-      //   id = i
-      // }
 
       todoList.push(<Grid container xs={3} spacing={2} className="todosDiv" style={{ "margin": '10px' }} >
         <div style={{ 'display': 'flex' }}>
@@ -354,7 +332,7 @@ const ProfilePage = () => {
 
           <Grid container xs={3} spacing={1} >
             <Button className="submit" style={{ 'marginTop': '14px', 'marginLeft': '45px', 'width': '25%', 'height': '45%' }} onClick={addTodo}>Add Todo</Button>
-            <div className='errorMessage'>Please enter a value</div>
+            {/* <div className='errorMessage'>Please enter a value</div> */}
           </Grid>
         </Grid>
 
