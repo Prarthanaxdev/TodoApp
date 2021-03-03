@@ -75,6 +75,7 @@ label + .MuiInput-formControl {
 
 .MuiDialog-paperWidthSm {
   width: 465px;
+  height: 32%;
 }
 
 .logout{
