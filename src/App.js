@@ -1,13 +1,19 @@
 import React from "react";
-import Application from "./component/Application";
+import Application from "./modules/Application";
 import UserProvider from "./UserProvider";
+import {Provider} from 'react-redux';
+import store from "./store";
+
 
 function App() {
-
-  return (
-    <UserProvider>
-      <Application />
+  
+  return(<UserProvider>
+     <Provider store={store}>
+        <Application />
+      </Provider>
     </UserProvider>
+     
+    
   );
 }
 

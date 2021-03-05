@@ -15,6 +15,11 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import AddIcon from '@material-ui/icons/Add';
 import axios from 'axios';
+import store from '../store.js';
+import { addTodos } from "./action";
+
+
+import { connect } from 'react-redux';
 
 const ProfilePage = () => {
   const user = useContext(UserContext);
@@ -54,6 +59,10 @@ const ProfilePage = () => {
     axios.get('http://localhost:5000/getData/' + user.user.uid)
     .then(function (response) {
       console.log("RESPONSE")
+      const { dispatch } = store;
+
+      dispatch(addTodos(response))
+
       let items = []
       response.data.map((doc) => {
         doc.subtodos.forEach(function (doc1) {
@@ -97,6 +106,7 @@ const ProfilePage = () => {
   }
 
   const addTodo = () => {
+
     if (title.length != 0) {
       axios.post('http://localhost:5000/addNewTodo', {
         title: title,
@@ -371,4 +381,12 @@ const ProfilePage = () => {
   )
 };
 
-export default ProfilePage;
+
+function mapStateToProps(state) {
+  return {
+    title: state.Todo,
+  };
+}
+
+export default connect(mapStateToProps)(ProfilePage);
+
