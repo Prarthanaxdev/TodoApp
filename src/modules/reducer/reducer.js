@@ -12,6 +12,12 @@ export default function TodoReducer(state = initialState, action){
                 todoList : action.todos
             }
     
+        case types.ADD_TODO:
+            return {
+                ...state,
+                todoList : action.todos
+            }
+        
         default:
             return {};
     }

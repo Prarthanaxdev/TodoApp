@@ -16,9 +16,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import AddIcon from '@material-ui/icons/Add';
 import axios from 'axios';
 import store from '../store.js';
-import { addTodos } from "./action";
-
-
+import { TodosList, addTodos } from "./action";
 import { connect } from 'react-redux';
 
 const ProfilePage = () => {
@@ -32,10 +30,12 @@ const ProfilePage = () => {
   const [todoId, setTodoId] = useState('');
   const [editField, setEditField] = useState('');
   const [addSubtodo, setAddSub] = useState('');
+  const [addsubSubtodo, setAddSubsub] = useState('');
   const [subtodo, setSubTodos] = useState([])
   const [clicked, setClicked] = useState(false);
   const [subTodoupdate, setEditSubTodo] = useState(false);
   const [error, setError] = useState(false);
+  const [subSubTodoFlag, setSubsubTodo] = useState(false);
   const [subdtodoError, setSubtodoError] = useState(false);
 
   useEffect(() => {
@@ -58,12 +58,10 @@ const ProfilePage = () => {
     let j = 0
     axios.get('http://localhost:5000/getData/' + user.user.uid)
     .then(function (response) {
-      console.log("RESPONSE")
       const { dispatch } = store;
-
-      dispatch(addTodos(response))
-
+      dispatch(TodosList(response))
       let items = []
+
       response.data.map((doc) => {
         doc.subtodos.forEach(function (doc1) {
           let x = {
@@ -105,9 +103,16 @@ const ProfilePage = () => {
     setAddSub(value);
   }
 
-  const addTodo = () => {
+  const onsubSubHandler = (event) => {
+    const { name, value } = event.currentTarget;
+    setAddSubsub(value);
+  }
 
+  const addTodo = () => {
     if (title.length != 0) {
+      const { dispatch } = store;
+      dispatch(addTodos(title, user.user.uid))
+
       axios.post('http://localhost:5000/addNewTodo', {
         title: title,
         userId: user.user.uid
@@ -143,6 +148,26 @@ const ProfilePage = () => {
       console.log(response);
       getTodos()
     })
+  }
+
+  const addSubSub =()=>{
+    if (addsubSubtodo.length != 0) {
+      axios.post('http://localhost:5000/addNewSubsubTodo', {
+        subTodo: addsubSubtodo,
+        todoId: todoId,
+        subTodoId : editId
+      })
+      .then(function (response) {
+        getTodos()
+        console.log(response);
+      })
+      setSubtodoError(true)
+      handleClose()
+      setAddSub('');
+    } 
+    else {
+      setSubtodoError(true)
+    }
   }
 
   const addSub = () => {
@@ -217,6 +242,7 @@ const ProfilePage = () => {
     setEditSubTodo(false)
     setEditField('');
     setSubtodoError(false)
+    setSubsubTodo(false)
   }
 
   const addSubtodos = (id) => {
@@ -225,6 +251,12 @@ const ProfilePage = () => {
     setEditId(id)
     setTodo('');
     setTitle('');
+  }
+
+  const addsubSubtodos = (id,todoId) => {
+    setSubsubTodo(true)
+    setEditId(id)
+    setTodoId(todoId)
   }
 
   let todoList = []
@@ -237,10 +269,13 @@ const ProfilePage = () => {
       if (subtodo != '') {
         subtodo.items.map((obj) => {
           if (obj.id == ob.id) {
-            list.push(<div style={{ "display": 'flex' }}>
-              <li style={{ 'marginTop': '7px', 'marginLeft': '14px', 'wordBreak': 'break-all' }}>{obj.subTodo}</li>
-              <DeleteIcon className='editIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteSubTodo(obj.subTodoId, ob.id)} />
-              <EditIcon className='editIcon' style={{ "marginLeft": "8px" }} onClick={() => editSubTodo(obj.subTodoId, ob.id, obj.subTodo)}></EditIcon>
+            list.push(<div>
+              <div style={{ "display": 'flex' }}>
+                <li style={{ 'marginTop': '7px', 'marginLeft': '14px', 'wordBreak': 'break-all' }}>{obj.subTodo}</li>
+                <DeleteIcon className='editIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteSubTodo(obj.subTodoId, ob.id)} />
+                <EditIcon className='editIcon' style={{ "marginLeft": "8px" }} onClick={() => editSubTodo(obj.subTodoId, ob.id, obj.subTodo)}></EditIcon>
+              </div>
+              <AddIcon onClick={() => addsubSubtodos(obj.subTodoId,ob.id)} className='addIcon' style={{ "marginLeft": '60px' }} />
             </div>)
           }
         })
@@ -341,7 +376,7 @@ const ProfilePage = () => {
             onChange={(event) => onUpdateHandler(event)}
           />
           {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div>
-            : ''}
+          : ''}
 
         </DialogContent>
         <DialogActions>
@@ -367,6 +402,7 @@ const ProfilePage = () => {
 
           {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div>
             : ''}
+
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
@@ -377,10 +413,33 @@ const ProfilePage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={subSubTodoFlag} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Add Sub Sub-Todo</DialogTitle>
+        <DialogContent>
+          <TextField id="standard-basic"
+            label="Add a Sub-Todo"
+            name='updateTodo'
+            value={addsubSubtodo}
+            style={{ "width": "80%" }}
+            onChange={(event) => onsubSubHandler(event)}
+          />
+
+          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div>
+          : ''}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={addSubSub} color="primary">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 };
-
 
 function mapStateToProps(state) {
   return {

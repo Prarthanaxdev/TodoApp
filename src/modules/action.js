@@ -1,19 +1,6 @@
-// import types from './actionTypes';
-
-// const addTodos = text => ({
-//   type: types.ADD_TODO,
-//   text,
-// });
-
-// export function addTodos(text) {
-//   return {
-//     type: types.ADD_TODO,
-//     text
-//   }
-// }
 
 let nextTodoId = 0
-export const addTodos = (text) => {
+export const TodosList = (text) => {
   return {
     type: 'TODO_LIST',
     todos: text.data,
@@ -21,4 +8,11 @@ export const addTodos = (text) => {
   }
 }
 
-// export default addTodos;
+export const addTodos = (text) => {
+  return {
+    type: 'ADD_TODO',
+    todoName: text,
+    
+  }
+}
+
