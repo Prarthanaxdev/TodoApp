@@ -5,7 +5,6 @@ import axios from 'axios';
 import config from "../config/config.json";
 const provider = new firebase.auth.GoogleAuthProvider();
 
-
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_API_KEY,
     authDomain: process.env.REACT_APP_AUTH_DOMAIN,
@@ -70,5 +69,5 @@ export const signOutUser =()=>{
       console.log(response);
     })
     auth.signOut()
-  }
+}
 

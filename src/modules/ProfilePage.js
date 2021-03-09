@@ -24,6 +24,7 @@ import config from "../config/config.json";
 
 const ProfilePage = () => {
   const user = useContext(UserContext);
+
   const [todo, setTodo] = useState('');
   const [title, setTitle] = useState('');
   const [todos, setTodos] = useState('')
