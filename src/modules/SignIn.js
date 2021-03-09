@@ -1,12 +1,11 @@
 import React, { useState,useContext } from "react";
 import { Link } from "@reach/router";
-import "../App.css";
+import "../css/App.css";
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { UserContext,useAuth } from "../UserProvider";
-import {signInWithGoogle} from '../firebase'
-import {auth,generateUserDocument} from "../firebase";
+import { UserContext } from "../UserProvider";
+import { auth, signInWithGoogle } from "../config/firebase";
 
 const SignIn = () => {
     const [email, setEmail] = useState('');
@@ -63,11 +62,8 @@ const SignIn = () => {
                 <Grid item xs={2}></Grid>
                 <Grid item xs={2}></Grid>
 
-                <Grid item xs={1}
-                    style={{'marginTop':"-20px",'marginBottom':"-17px"}}
-                >
-
-                    <div style={{ "marginTop": '10px', 'fontSize': '14px' }}>OR</div>
+                <Grid item xs={1}>
+                    <div >OR</div>
                 </Grid>
 
                 <Grid item xs={12}>

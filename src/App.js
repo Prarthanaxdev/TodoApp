@@ -4,16 +4,12 @@ import UserProvider from "./UserProvider";
 import {Provider} from 'react-redux';
 import store from "./store";
 
-
 function App() {
-  
   return(<UserProvider>
      <Provider store={store}>
         <Application />
       </Provider>
     </UserProvider>
-     
-    
   );
 }
 

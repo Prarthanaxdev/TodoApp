@@ -2,17 +2,18 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 import axios from 'axios';
-
+import config from "../config/config.json";
 const provider = new firebase.auth.GoogleAuthProvider();
 
+
 const firebaseConfig = {
-    apiKey: "AIzaSyD6lcRnk_hbBf3xDMhPZCX5rK9JaSsSVAM",
-    authDomain: "test-47c34.firebaseapp.com",
-    projectId: "test-47c34",
-    storageBucket: "test-47c34.appspot.com",
-    messagingSenderId: "20668071512",
-    appId: "1:20668071512:web:6ff676ba9700d31b95d42d",
-    measurementId: "G-PXTCZDMMCK"
+    apiKey: process.env.REACT_APP_API_KEY,
+    authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+    projectId: process.env.REACT_APP_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+    appId: process.env.REACT_APP_ID,
+    measurementId: process.env.REACT_APP_MEASUREMENT_ID
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -64,7 +65,7 @@ const getUserDocument = async uid => {
 };
 
 export const signOutUser =()=>{
-    axios.post('http://localhost:5000/removeSession')
+    axios.post(config.ip+'/removeSession')
     .then(function (response) {
       console.log(response);
     })

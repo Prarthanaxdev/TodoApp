@@ -1,9 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { UserContext } from "../UserProvider";
-import { auth, firestore, signOutUser } from "../firebase";
+import { signOutUser } from "../config/firebase";
 import Grid from '@material-ui/core/Grid';
-import "../App.css";
-import image from './logo192.png'
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import DeleteIcon from '@material-ui/icons/Clear';
@@ -15,9 +13,14 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import AddIcon from '@material-ui/icons/Add';
 import axios from 'axios';
-import store from '../store.js';
-import { TodosList, addTodos } from "./action";
+import { addTodos } from "./actions/action.js";
 import { connect } from 'react-redux';
+
+import store from '../store.js';
+import "../css/App.css";
+import image from '../css/logo192.png'
+import config from "../config/config.json";
+
 
 const ProfilePage = () => {
   const user = useContext(UserContext);
@@ -39,7 +42,7 @@ const ProfilePage = () => {
   const [subdtodoError, setSubtodoError] = useState(false);
 
   useEffect(() => {
-    axios.post('http://localhost:5000/setData', {
+    axios.post(config.ip+'/setData', {
       uid: user.user.uid
     })
     .then(function (response) {
@@ -47,7 +50,7 @@ const ProfilePage = () => {
     })
 
     window.addEventListener('beforeunload', (e) => {
-      axios.post('http://localhost:5000/removeSession')
+      axios.post(config.ip+'/removeSession')
       .then(function (response) {
         console.log(response);
       })
@@ -56,10 +59,8 @@ const ProfilePage = () => {
 
   const getTodos = () => {
     let j = 0
-    axios.get('http://localhost:5000/getData/' + user.user.uid)
+    axios.get(config.ip+'/getData/' + user.user.uid)
     .then(function (response) {
-      const { dispatch } = store;
-      dispatch(TodosList(response))
       let items = []
 
       response.data.map((doc) => {
@@ -113,7 +114,7 @@ const ProfilePage = () => {
       const { dispatch } = store;
       dispatch(addTodos(title, user.user.uid))
 
-      axios.post('http://localhost:5000/addNewTodo', {
+      axios.post(config.ip+'/addNewTodo', {
         title: title,
         userId: user.user.uid
       })
@@ -130,7 +131,7 @@ const ProfilePage = () => {
   }
 
   const deleteTodo = (id) => {
-    axios.post('http://localhost:5000/deleteTodo', {
+    axios.post(config.ip+'/deleteTodo', {
       id: id,
     })
     .then(function (response) {
@@ -140,7 +141,7 @@ const ProfilePage = () => {
   }
 
   const deleteSubTodo = (Subtodoid, todoId) => {
-    axios.post('http://localhost:5000/deleteSubTodo', {
+    axios.post(config.ip+'/deleteSubTodo', {
       subTodoId: Subtodoid,
       todoId: todoId
     })
@@ -150,12 +151,12 @@ const ProfilePage = () => {
     })
   }
 
-  const addSubSub =()=>{
+  const addSubSub = () => {
     if (addsubSubtodo.length != 0) {
-      axios.post('http://localhost:5000/addNewSubsubTodo', {
+      axios.post(config.ip+'/addNewSubsubTodo', {
         subTodo: addsubSubtodo,
         todoId: todoId,
-        subTodoId : editId
+        subTodoId: editId
       })
       .then(function (response) {
         getTodos()
@@ -163,8 +164,8 @@ const ProfilePage = () => {
       })
       setSubtodoError(true)
       handleClose()
-      setAddSub('');
-    } 
+      setAddSubsub('')
+    }
     else {
       setSubtodoError(true)
     }
@@ -172,7 +173,7 @@ const ProfilePage = () => {
 
   const addSub = () => {
     if (addSubtodo.length != 0) {
-      axios.post('http://localhost:5000/addNewSubTodo', {
+      axios.post(config.ip+'/addNewSubTodo', {
         subTodo: addSubtodo,
         todoId: editId
       })
@@ -190,7 +191,7 @@ const ProfilePage = () => {
 
   const updateTodo = () => {
     if (editField.length != 0) {
-      axios.post('http://localhost:5000/updateTodo', {
+      axios.post(config.ip+'/updateTodo', {
         id: editId,
         title: editField
       })
@@ -207,7 +208,7 @@ const ProfilePage = () => {
 
   const updateSubTodo = () => {
     if (editField.length != 0) {
-      axios.post('http://localhost:5000/updateSubTodo', {
+      axios.post(config.ip+'/updateSubTodo', {
         id: editId,
         title: editField,
         todoId: todoId
@@ -253,7 +254,7 @@ const ProfilePage = () => {
     setTitle('');
   }
 
-  const addsubSubtodos = (id,todoId) => {
+  const addsubSubtodos = (id, todoId) => {
     setSubsubTodo(true)
     setEditId(id)
     setTodoId(todoId)
@@ -275,7 +276,7 @@ const ProfilePage = () => {
                 <DeleteIcon className='editIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteSubTodo(obj.subTodoId, ob.id)} />
                 <EditIcon className='editIcon' style={{ "marginLeft": "8px" }} onClick={() => editSubTodo(obj.subTodoId, ob.id, obj.subTodo)}></EditIcon>
               </div>
-              <AddIcon onClick={() => addsubSubtodos(obj.subTodoId,ob.id)} className='addIcon' style={{ "marginLeft": '60px' }} />
+              <AddIcon onClick={() => addsubSubtodos(obj.subTodoId, ob.id)} className='addIcon' style={{ "marginLeft": '60px' }} />
             </div>)
           }
         })
@@ -351,8 +352,8 @@ const ProfilePage = () => {
             style={{ "width": "80%" }}
             onChange={(event) => onUpdateHandler(event)}
           />
-          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div>
-            : ''}
+          
+          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div>: ''}
 
         </DialogContent>
         <DialogActions>
@@ -375,8 +376,8 @@ const ProfilePage = () => {
             style={{ "width": "80%" }}
             onChange={(event) => onUpdateHandler(event)}
           />
-          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div>
-          : ''}
+
+          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div>: ''}
 
         </DialogContent>
         <DialogActions>
@@ -400,8 +401,7 @@ const ProfilePage = () => {
             onChange={(event) => onSubHandler(event)}
           />
 
-          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div>
-            : ''}
+          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div>: ''}
 
         </DialogContent>
         <DialogActions>
@@ -425,8 +425,8 @@ const ProfilePage = () => {
             onChange={(event) => onsubSubHandler(event)}
           />
 
-          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div>
-          : ''}
+          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div>: ''}
+
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">

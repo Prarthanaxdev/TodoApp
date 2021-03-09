@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "@reach/router";
-import "../App.css";
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { auth, generateUserDocument } from "../firebase";
+import { auth, generateUserDocument } from "../config/firebase";
+import "../css/App.css";
 
 const SignIn = () => {
     const [email, setEmail] = useState('');
@@ -14,7 +14,6 @@ const SignIn = () => {
     
     const onChangeHandler = (event) => {
         const { name, value } = event.currentTarget;
-
         if (name === 'userEmail') {
             setEmail(value);
         }
@@ -51,8 +50,8 @@ const SignIn = () => {
                         name='displayName'
                         style={{"width":"75%"}}
                         onChange={(event) => onChangeHandler(event)} />
-
                 </Grid>
+                
                 <Grid item xs={12}>
                     <TextField id="standard-basic"
                         label="Email" value={email}
@@ -60,6 +59,7 @@ const SignIn = () => {
                         style={{"width":"75%"}}
                         onChange={(event) => onChangeHandler(event)} />
                 </Grid>
+
                 <Grid item xs={12}>
                     <TextField id="standard-password-input"
                         label="Password"
@@ -69,9 +69,11 @@ const SignIn = () => {
                         autoComplete="current-password"
                         value={password} onChange={(event) => onChangeHandler(event)} />
                 </Grid>
+
                 <Grid item xs={12}>
                     <Button className="submit" style={{"width":"76%"}} onClick={(event) => {createUser(event, email, password)}}>Sign up</Button>
                 </Grid>
+
                 <Grid item xs={8}>
                     {error !== null && (
                         <div style={{'fontSize': '11px','color': 'red'}}>
@@ -79,6 +81,7 @@ const SignIn = () => {
                         </div>
                     )}
                 </Grid>
+
                 <Grid item xs={8}>
                     <p style={{ 'fontSize': '13px' }}>Already have an account?{" "}
                         <Link to="/" className="text-blue-500 hover:text-blue-600">

@@ -16,10 +16,19 @@
   text-align: center;
 }
 
+.signInContainer{
+  margin-left: 30px !important;
+}
+
+.orContainer{
+  margin-top: -20px ;
+  margin-bottom: -17px;
+}
+
+
 .todoTitle{
   color: blue;
   font-family: 'Ubuntu', sans-serif;
-  /* font-weight: bold; */
   font-size: 23px;
   font-family: cursive;
   margin-left: 13px;
