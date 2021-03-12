@@ -69,10 +69,12 @@ const ProfilePage = () => {
           let x = {
             id: doc.id,
             subTodo: doc1.subTodo,
-            subTodoId: doc1.subTodoId
+            subTodoId: doc1.subTodoId,
+            subSubTodo : doc1.subsubTodo
           }
           items.push(x)
         })
+
         setSubTodos({ ...subtodo, items })
       })
 
@@ -262,7 +264,7 @@ const ProfilePage = () => {
   }
 
   let todoList = []
-  let subTodos = {}
+  let subTodos = []
 
   if (todos != '') {
     let name = ""
@@ -271,12 +273,15 @@ const ProfilePage = () => {
       if (subtodo != '') {
         subtodo.items.map((obj) => {
           if (obj.id == ob.id) {
+           
             list.push(<div>
               <div style={{ "display": 'flex' }}>
                 <li style={{ 'marginTop': '7px', 'marginLeft': '14px', 'wordBreak': 'break-all' }}>{obj.subTodo}</li>
                 <DeleteIcon className='editIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteSubTodo(obj.subTodoId, ob.id)} />
                 <EditIcon className='editIcon' style={{ "marginLeft": "8px" }} onClick={() => editSubTodo(obj.subTodoId, ob.id, obj.subTodo)}></EditIcon>
               </div>
+              {obj.subSubTodo.length !=0 ?
+              <li style={{ 'marginTop': '7px', 'marginLeft': '55px', 'wordBreak': 'break-all' }}>{obj.subSubTodo.sub1.name}</li>:''}
               <AddIcon onClick={() => addsubSubtodos(obj.subTodoId, ob.id)} className='addIcon' style={{ "marginLeft": '60px' }} />
             </div>)
           }
