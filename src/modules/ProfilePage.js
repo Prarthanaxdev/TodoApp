@@ -158,7 +158,7 @@ const ProfilePage = () => {
       })
   }
 
-  const deleteSubsubTodo = (Subtodoid,id,todoId) => {
+  const deleteSubsubTodo = (Subtodoid, id, todoId) => {
     axios.post(config.ip + '/deleteSubsubTodo', {
       subTodoId: Subtodoid,
       id: id,
@@ -234,7 +234,7 @@ const ProfilePage = () => {
     setEditField(name);
   }
 
-  const editSubsubTodo =(Subtodoid,id,todoId, name)=>{
+  const editSubsubTodo = (Subtodoid, id, todoId, name) => {
     setEditSubTodo(true);
     setEditId(id);
     setAddSubsub(Subtodoid)
@@ -269,17 +269,17 @@ const ProfilePage = () => {
       setSubtodoError(true)
     }
 
-    if(addsubSubtodo != ''){
+    if (addsubSubtodo != '') {
       if (editField.length != 0) {
         axios.post(config.ip + '/updateSubsubTodo', {
           id: editId,
           title: editField,
-          todoId: todoId, 
-          subTodoId : addsubSubtodo
+          todoId: todoId,
+          subTodoId: addsubSubtodo
         })
-        .then(function (response) {
-          getTodos()
-        })
+          .then(function (response) {
+            getTodos()
+          })
         setSubtodoError(false)
         handleClose();
       } else {
@@ -318,21 +318,6 @@ const ProfilePage = () => {
       if (subtodo != '') {
         let subs = []
         subtodo.items.map((obj) => {
-          for (let i = 1; i <= obj.sub; i++) {
-            let name = 'sub' + i
-            let key = obj.subSubTodo[name]
-        
-            if(key.DELETED != "YES"){
-              subs.push(<div>
-                <div style={{ "display": 'flex' }}>
-                  <li style={{ 'marginTop': '7px', 'marginLeft': '55px', 'wordBreak': 'break-all' }}>{key.name}</li>
-                  <DeleteIcon className='editIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteSubsubTodo(key.subTodoId, key.id,ob.id)} />
-                  <EditIcon className='editIcon' style={{ "marginLeft": "8px" }} onClick={() => editSubsubTodo(key.subTodoId, key.id,ob.id,key.name)}></EditIcon>
-                </div>
-              </div>)
-            }
-          }
-
           if (obj.id == ob.id) {
             list.push(<div>
               <div style={{ "display": 'flex' }}>
@@ -340,9 +325,6 @@ const ProfilePage = () => {
                 <DeleteIcon className='editIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteSubTodo(obj.subTodoId, ob.id)} />
                 <EditIcon className='editIcon' style={{ "marginLeft": "8px" }} onClick={() => editSubTodo(obj.subTodoId, ob.id, obj.subTodo)}></EditIcon>
               </div>
-
-              {obj.subSubTodo.length != 0 ? subs : ''}
-
               <AddIcon onClick={() => addsubSubtodos(obj.subTodoId, ob.id, "subTodos")} className='addIcon' style={{ "marginLeft": '47px' }} />
             </div>)
           }
