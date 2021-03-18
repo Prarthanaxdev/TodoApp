@@ -13,15 +13,11 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import AddIcon from '@material-ui/icons/Add';
 import axios from 'axios';
-import { addTodos } from "./actions/action.js";
 import { connect } from 'react-redux';
 
-import store from '../store.js';
 import "../css/App.css";
 import image from '../css/logo192.png'
 import config from "../config/config.json";
-import { ControlPointSharp } from "@material-ui/icons";
-
 
 const ProfilePage = () => {
   const user = useContext(UserContext);
@@ -42,6 +38,7 @@ const ProfilePage = () => {
   const [error, setError] = useState(false);
   const [subSubTodoFlag, setSubsubTodo] = useState(false);
   const [subdtodoError, setSubtodoError] = useState(false);
+  const [json, setJson] = useState([])
 
   useEffect(() => {
     axios.post(config.ip + '/setData', {
@@ -64,22 +61,9 @@ const ProfilePage = () => {
     axios.get(config.ip + '/getData/' + user.user.uid)
       .then(function (response) {
         let items = []
-        let y = []
-
+        setJson([])
         response.data.map((doc) => {
-          doc.subtodos.forEach(function (doc1) {
-            let x = {
-              id: doc.id,
-              subTodo: doc1.subTodo,
-              subTodoId: doc1.subTodoId,
-              subSubTodo: doc1.subsubTodo,
-              sub: doc1.sub
-            }
-
-            items.push(x)
-          })
-
-          setSubTodos({ ...subtodo, items })
+          setJson(json => [...json, doc])
         })
 
         setTodos(
@@ -90,6 +74,7 @@ const ProfilePage = () => {
         )
       })
   }
+
 
   const onChangeHandler = (event) => {
     const { name, value } = event.currentTarget;
@@ -111,24 +96,16 @@ const ProfilePage = () => {
     setAddSub(value);
   }
 
-  const onsubSubHandler = (event) => {
-    const { name, value } = event.currentTarget;
-    setAddSubsub(value);
-  }
-
   const addTodo = () => {
     if (title.length != 0) {
-      const { dispatch } = store;
-      dispatch(addTodos(title, user.user.uid))
-
       axios.post(config.ip + '/addNewTodo', {
         title: title,
         userId: user.user.uid
       })
-        .then(function (response) {
-          getTodos()
-          console.log(response);
-        })
+      .then(function (response) {
+        getTodos()
+        console.log(response);
+      })
       setError(false)
       setTodo('');
       setTitle('');
@@ -141,67 +118,38 @@ const ProfilePage = () => {
     axios.post(config.ip + '/deleteTodo', {
       id: id,
     })
-      .then(function (response) {
-        console.log(response);
-        getTodos()
-      })
-  }
-
-  const deleteSubTodo = (Subtodoid, todoId) => {
-    axios.post(config.ip + '/deleteSubTodo', {
-      subTodoId: Subtodoid,
-      todoId: todoId
+    .then(function (response) {
+      console.log(response);
+      getTodos()
     })
-      .then(function (response) {
-        console.log(response);
-        getTodos()
-      })
   }
 
-  const deleteSubsubTodo = (Subtodoid, id, todoId) => {
-    axios.post(config.ip + '/deleteSubsubTodo', {
-      subTodoId: Subtodoid,
-      id: id,
-      todoId, todoId
-    })
-      .then(function (response) {
-        console.log(response);
-        getTodos()
-      })
-  }
-
-  const addSubSub = () => {
-    if (editId.split("/")[1] == "subTodos") {
-      if (addsubSubtodo.length != 0) {
-        axios.post(config.ip + '/addNewSubsubTodo', {
-          subTodo: addsubSubtodo,
-          todoId: todoId,
-          subTodoId: editId.split("/")[0]
-        })
-          .then(function (response) {
-            getTodos()
-            console.log(response);
-          })
-        setSubtodoError(true)
-        handleClose()
-        setAddSubsub('')
-      }
-      else {
-        setSubtodoError(true)
-      }
+  let update = (id, text) => obj => {
+    if (obj.id === id) {
+      obj.subtodos.push(text)
     }
-  }
+    else if (obj.subtodos)
+      return obj.subtodos.some(update(id, text));
+  };
 
   const addSub = () => {
     if (addSubtodo.length != 0) {
+      const randomnumber = Math.floor(Math.random() * 100) + 1;
+      let obj = {
+        name: addSubtodo,
+        id: randomnumber,
+        subtodos: [],
+      }
+
+      json.forEach(update(editId, obj));
+      setJson(json)
       axios.post(config.ip + '/addNewSubTodo', {
-        subTodo: addSubtodo,
-        todoId: editId
+        data : json
       })
-        .then(function (response) {
-          getTodos()
-          console.log(response);
-        })
+      .then(function (response) {
+        getTodos()
+        console.log(response);
+      })
       setSubtodoError(true)
       handleClose()
       setAddSub('');
@@ -214,7 +162,8 @@ const ProfilePage = () => {
     if (editField.length != 0) {
       axios.post(config.ip + '/updateTodo', {
         id: editId,
-        title: editField
+        title: editField,
+        
       })
         .then(function (response) {
           getTodos()
@@ -225,21 +174,6 @@ const ProfilePage = () => {
     } else {
       setSubtodoError(true)
     }
-  }
-
-  const editSubTodo = (id, todoId, name) => {
-    setEditSubTodo(true);
-    setEditId(id);
-    setTodoId(todoId)
-    setEditField(name);
-  }
-
-  const editSubsubTodo = (Subtodoid, id, todoId, name) => {
-    setEditSubTodo(true);
-    setEditId(id);
-    setAddSubsub(Subtodoid)
-    setTodoId(todoId)
-    setEditField(name);
   }
 
   const handleClose = () => {
@@ -260,9 +194,9 @@ const ProfilePage = () => {
         title: editField,
         todoId: todoId
       })
-        .then(function (response) {
-          getTodos()
-        })
+      .then(function (response) {
+        getTodos()
+      })
       setSubtodoError(false)
       handleClose();
     } else {
@@ -277,9 +211,9 @@ const ProfilePage = () => {
           todoId: todoId,
           subTodoId: addsubSubtodo
         })
-          .then(function (response) {
-            getTodos()
-          })
+        .then(function (response) {
+          getTodos()
+        })
         setSubtodoError(false)
         handleClose();
       } else {
@@ -302,45 +236,36 @@ const ProfilePage = () => {
     setTitle('');
   }
 
-  const addsubSubtodos = (id, todoId, name) => {
-    setSubsubTodo(true)
-    setEditId(id + "/" + name)
-    setTodoId(todoId)
-  }
+  const Todo = ({ data }) => {
+    
+    const subTodo = (data.subtodos || []).map((ob) => {
+      return <Todo key={ob.id} data={ob} type="child" />;
+    });
 
-  let todoList = []
+    return (<div style={{ paddingLeft: "10px" }}>
+      <div style={{ display: "flex", 'marginTop': "-16px" }}>
+        <p class="todoTitle" >{data.name}</p>
+        <DeleteIcon className='deleteIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteTodo(data.id)} />
+        <EditIcon className='deleteIcon' style={{ "marginLeft": "8px" }} onClick={() => editTodo(data.id, data.name)}></EditIcon>
+        <AddIcon onClick={() => addSubtodos(data.id)} style={{ "marginLeft": "8px", "color": "blue" }} className='deleteIcon' />
+      </div>
+      <div>{subTodo}</div>
+    </div>
+    );
+  };
+
+  let list = []
   let subTodos = []
 
   if (todos != '') {
     let name = ""
-    todos.map((ob, i) => {
-      let list = []
-      if (subtodo != '') {
-        let subs = []
-        subtodo.items.map((obj) => {
-          if (obj.id == ob.id) {
-            list.push(<div>
-              <div style={{ "display": 'flex' }}>
-                <li style={{ 'marginTop': '7px', 'marginLeft': '14px', 'wordBreak': 'break-all' }}>{obj.subTodo}</li>
-                <DeleteIcon className='editIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteSubTodo(obj.subTodoId, ob.id)} />
-                <EditIcon className='editIcon' style={{ "marginLeft": "8px" }} onClick={() => editSubTodo(obj.subTodoId, ob.id, obj.subTodo)}></EditIcon>
-              </div>
-              <AddIcon onClick={() => addsubSubtodos(obj.subTodoId, ob.id, "subTodos")} className='addIcon' style={{ "marginLeft": '47px' }} />
-            </div>)
-          }
-        })
-      }
-
-      todoList.push(<Grid container xs={3} spacing={2} className="todosDiv" style={{ "margin": '10px' }} >
+    list = json.map((ob) => {
+      return <Grid container xs={3} spacing={2} className="todosDiv" style={{ "margin": '10px' }} >
         <div style={{ 'display': 'flex' }}>
-          <p class="todoTitle" >{ob.title}</p>
-          <DeleteIcon className='deleteIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteTodo(ob.id)} />
-          <EditIcon className='deleteIcon' style={{ "marginLeft": "8px" }} onClick={() => editTodo(ob.id, ob.title)}></EditIcon>
+          <Todo key={ob.id} data={ob} />
         </div>
-        {list}
-        <AddIcon onClick={() => addSubtodos(ob.id)} className='addIcon' />
-      </Grid>)
-    })
+      </Grid>
+    });
   }
 
   return (
@@ -387,7 +312,7 @@ const ProfilePage = () => {
         </Grid>
 
         <Grid container xs={12} spacing={2} >
-          {todoList}
+          {list}
         </Grid>
       </Grid>
 
@@ -458,30 +383,6 @@ const ProfilePage = () => {
             Cancel
           </Button>
           <Button onClick={addSub} color="primary">
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={subSubTodoFlag} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Add Sub Sub-Todo</DialogTitle>
-        <DialogContent>
-          <TextField id="standard-basic"
-            label="Add a Sub-Todo"
-            name='updateTodo'
-            value={addsubSubtodo}
-            style={{ "width": "80%" }}
-            onChange={(event) => onsubSubHandler(event)}
-          />
-
-          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div> : ''}
-
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={addSubSub} color="primary">
             Add
           </Button>
         </DialogActions>
