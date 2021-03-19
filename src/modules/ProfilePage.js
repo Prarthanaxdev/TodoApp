@@ -243,8 +243,9 @@ const ProfilePage = () => {
     });
 
     return (<div style={{ paddingLeft: "10px" }}>
-      <div style={{ display: "flex", 'marginTop': "-16px" }}>
-        <p class="todoTitle" >{data.name}</p>
+      <div style={{ display: "flex", 'marginTop': "-7px" }}>
+        {/* <p class="todoTitle" >{data.name}</p> */}
+        <li class="todoTitle" >{data.name}</li>
         <DeleteIcon className='deleteIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteTodo(data.id)} />
         <EditIcon className='deleteIcon' style={{ "marginLeft": "8px" }} onClick={() => editTodo(data.id, data.name)}></EditIcon>
         <AddIcon onClick={() => addSubtodos(data.id)} style={{ "marginLeft": "8px", "color": "blue" }} className='deleteIcon' />
@@ -259,6 +260,7 @@ const ProfilePage = () => {
 
   if (todos != '') {
     let name = ""
+
     list = json.map((ob) => {
       return <Grid container xs={3} spacing={2} className="todosDiv" style={{ "margin": '10px' }} >
         <div style={{ 'display': 'flex' }}>
