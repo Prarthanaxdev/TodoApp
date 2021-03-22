@@ -114,14 +114,32 @@ const ProfilePage = () => {
     }
   }
 
+  let deleteItem = (id) => obj => {
+    if (obj.id === id) {
+      // let index = json.findIndex(x => x.id ===id);
+      // console.log("HERE",json[0].name)
+      delete obj.id
+      delete obj.name
+      delete obj.subtodos
+      // obj.subtodos.splice(index)
+      // obj.subtodos.push(text)
+    }
+    else if (obj.subtodos)
+      return obj.subtodos.some(deleteItem(id));
+  };
+
   const deleteTodo = (id) => {
-    axios.post(config.ip + '/deleteTodo', {
-      id: id,
-    })
-    .then(function (response) {
-      console.log(response);
-      getTodos()
-    })
+    json.forEach(deleteItem(id));
+    setJson(json)
+
+    console.log("*****", json)
+    // axios.post(config.ip + '/deleteTodo', {
+    //   data: json,
+    // })
+    // .then(function (response) {
+    //   console.log(response);
+    //   getTodos()
+    // })
   }
 
   let update = (id, text) => obj => {
@@ -237,15 +255,14 @@ const ProfilePage = () => {
   }
 
   const Todo = ({ data }) => {
-    
+
     const subTodo = (data.subtodos || []).map((ob) => {
       return <Todo key={ob.id} data={ob} type="child" />;
     });
 
     return (<div style={{ paddingLeft: "10px" }}>
       <div style={{ display: "flex", 'marginTop': "-7px" }}>
-        {/* <p class="todoTitle" >{data.name}</p> */}
-        <li class="todoTitle" >{data.name}</li>
+        <li className="todoTitle" >{data.name}</li>
         <DeleteIcon className='deleteIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteTodo(data.id)} />
         <EditIcon className='deleteIcon' style={{ "marginLeft": "8px" }} onClick={() => editTodo(data.id, data.name)}></EditIcon>
         <AddIcon onClick={() => addSubtodos(data.id)} style={{ "marginLeft": "8px", "color": "blue" }} className='deleteIcon' />
