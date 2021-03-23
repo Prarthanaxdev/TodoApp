@@ -25,6 +25,7 @@ const SignIn = () => {
         }
     };
 
+    /* SignUp of the user */
     const createUser = async (event, email, password) => {
         try {
             const  {user} = await auth.createUserWithEmailAndPassword(email, password);
@@ -41,8 +42,8 @@ const SignIn = () => {
     };
 
     return (
-        <div class="main">
-            <p class="sign" >Sign Up</p>
+        <div className="main">
+            <p className="sign" >Sign Up</p>
             <Grid container spacing={3} style={{ 'marginLeft': '30px' }} >
                 <Grid item xs={12}>
                     <TextField id="standard-basic"
