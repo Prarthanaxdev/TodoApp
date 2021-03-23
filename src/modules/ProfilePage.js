@@ -32,7 +32,6 @@ const ProfilePage = () => {
   const [editField, setEditField] = useState('');
   const [addSubtodo, setAddSub] = useState('');
   const [addsubSubtodo, setAddSubsub] = useState('');
-  const [subtodo, setSubTodos] = useState([])
   const [clicked, setClicked] = useState(false);
   const [subTodoupdate, setEditSubTodo] = useState(false);
   const [error, setError] = useState(false);
@@ -44,37 +43,37 @@ const ProfilePage = () => {
     axios.post(config.ip + '/setData', {
       uid: user.user.uid
     })
-      .then(function (response) {
-        getTodos();
-      })
+    .then(function (response) {
+      getTodos();
+    })
 
     window.addEventListener('beforeunload', (e) => {
       axios.post(config.ip + '/removeSession')
-        .then(function (response) {
-          console.log(response);
-        })
+      .then(function (response) {
+        console.log(response);
+      })
     });
   }, [])
 
+  /* Fetches Todos and SubTodos from redis cache */
   const getTodos = () => {
     let j = 0
     axios.get(config.ip + '/getData/' + user.user.uid)
-      .then(function (response) {
-        let items = []
-        setJson([])
-        response.data.map((doc) => {
-          setJson(json => [...json, doc])
-        })
-
-        setTodos(
-          response.data.map((doc) => ({
-            id: doc.id,
-            title: doc.title,
-          }))
-        )
+    .then(function (response) {
+      let items = []
+      setJson([])
+      response.data.map((doc) => {
+        setJson(json => [...json, doc])
       })
-  }
 
+      setTodos(
+        response.data.map((doc) => ({
+          id: doc.id,
+          title: doc.title,
+        }))
+      )
+    })
+  }
 
   const onChangeHandler = (event) => {
     const { name, value } = event.currentTarget;
@@ -116,32 +115,26 @@ const ProfilePage = () => {
 
   let deleteItem = (id) => obj => {
     if (obj.id === id) {
-      // let index = json.findIndex(x => x.id ===id);
-      // console.log("HERE",json[0].name)
       delete obj.id
       delete obj.name
       delete obj.subtodos
-      // obj.subtodos.splice(index)
-      // obj.subtodos.push(text)
     }
     else if (obj.subtodos)
       return obj.subtodos.some(deleteItem(id));
   };
 
   const deleteTodo = (id) => {
-    json.forEach(deleteItem(id));
-    setJson(json)
-
-    console.log("*****", json)
-    // axios.post(config.ip + '/deleteTodo', {
-    //   data: json,
-    // })
-    // .then(function (response) {
-    //   console.log(response);
-    //   getTodos()
-    // })
+   
+    axios.post(config.ip + '/deleteTodo', {
+      id: id,
+    })
+    .then(function (response) {
+      console.log(response);
+      getTodos()
+    })
   }
 
+  /* A recursive function to add multiple subtodos */
   let update = (id, text) => obj => {
     if (obj.id === id) {
       obj.subtodos.push(text)
@@ -183,10 +176,10 @@ const ProfilePage = () => {
         title: editField,
         
       })
-        .then(function (response) {
-          getTodos()
-          console.log(response);
-        })
+      .then(function (response) {
+        getTodos()
+        console.log(response);
+      })
       setSubtodoError(false)
       handleClose();
     } else {
@@ -255,7 +248,6 @@ const ProfilePage = () => {
   }
 
   const Todo = ({ data }) => {
-
     const subTodo = (data.subtodos || []).map((ob) => {
       return <Todo key={ob.id} data={ob} type="child" />;
     });
@@ -273,13 +265,10 @@ const ProfilePage = () => {
   };
 
   let list = []
-  let subTodos = []
 
   if (todos != '') {
-    let name = ""
-
-    list = json.map((ob) => {
-      return <Grid container xs={3} spacing={2} className="todosDiv" style={{ "margin": '10px' }} >
+    list = json.map((ob,i) => {
+      return <Grid container key={i} xs={3} spacing={2} className="todosDiv" style={{ "margin": '10px' }} >
         <div style={{ 'display': 'flex' }}>
           <Todo key={ob.id} data={ob} />
         </div>
@@ -313,7 +302,7 @@ const ProfilePage = () => {
 
       <Grid container xs={12} spacing={2} className="todoContainer" style={{ "marginTop": "22px" }}>
         <Grid container xs={12} spacing={2} style={{ 'marginTop': '10px', 'marginLeft': "15px", 'marginBottom': '10px' }}>
-          <p class="addTodo" style={{ "textAlign": "none", "marginLeft": "22px" }} >Add a Todo</p>
+          <p className="addTodo" style={{ "textAlign": "none", "marginLeft": "22px" }} >Add a Todo</p>
           <Grid container xs={3}>
             <TextField id="standard-basic"
               label="Todo Title"
@@ -417,4 +406,3 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps)(ProfilePage);
-
