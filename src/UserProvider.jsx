@@ -7,7 +7,7 @@ const UserProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    //acts an observer for changes to the user's sign-in state.
+    /* Acts an observer for changes to the user's sign-in state */
     auth.onAuthStateChanged(async userAuth => {  
       if (window.location.pathname === '/signUp') {
         setCurrentUser(null);

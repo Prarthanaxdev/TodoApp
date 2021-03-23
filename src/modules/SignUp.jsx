@@ -44,12 +44,12 @@ const SignIn = () => {
     return (
         <div className="main">
             <p className="sign" >Sign Up</p>
-            <Grid container spacing={3} style={{ 'marginLeft': '30px' }} >
+            <Grid container spacing={3} className="signInContainer" >
                 <Grid item xs={12}>
                     <TextField id="standard-basic"
                         label="Display Name" value={displayName}
                         name='displayName'
-                        style={{"width":"75%"}}
+                        className='bigTextField'
                         onChange={(event) => onChangeHandler(event)} />
                 </Grid>
                 
@@ -57,7 +57,7 @@ const SignIn = () => {
                     <TextField id="standard-basic"
                         label="Email" value={email}
                         name='userEmail'
-                        style={{"width":"75%"}}
+                        className='bigTextField'
                         onChange={(event) => onChangeHandler(event)} />
                 </Grid>
 
@@ -66,25 +66,25 @@ const SignIn = () => {
                         label="Password"
                         type="password"
                         name='userPassword'
-                        style={{"width":"75%"}}
+                        className='bigTextField'
                         autoComplete="current-password"
                         value={password} onChange={(event) => onChangeHandler(event)} />
                 </Grid>
 
                 <Grid item xs={12}>
-                    <Button className="submit" style={{"width":"76%"}} onClick={(event) => {createUser(event, email, password)}}>Sign up</Button>
+                    <Button className="submit" className="signInSubmit" onClick={(event) => {createUser(event, email, password)}}>Sign up</Button>
                 </Grid>
 
                 <Grid item xs={8}>
                     {error !== null && (
-                        <div style={{'fontSize': '11px','color': 'red'}}>
+                        <div className='signInError'>
                             {error}
                         </div>
                     )}
                 </Grid>
 
                 <Grid item xs={8}>
-                    <p style={{ 'fontSize': '13px' }}>Already have an account?{" "}
+                    <p className='noAccount'>Already have an account?{" "}
                         <Link to="/" className="text-blue-500 hover:text-blue-600">
                             Sign in here
                         </Link>{" "}

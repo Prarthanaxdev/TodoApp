@@ -21,25 +21,19 @@ import config from "../config/config.json";
 
 const ProfilePage = () => {
   const user = useContext(UserContext);
-
-  const [todo, setTodo] = useState('');
   const [title, setTitle] = useState('');
   const [todos, setTodos] = useState('')
   const [editTodoFlag, setEditTodo] = useState(false);
   const [subTodoFlag, setSubTodo] = useState(false);
   const [editId, setEditId] = useState('');
-  const [todoId, setTodoId] = useState('');
   const [editField, setEditField] = useState('');
   const [addSubtodo, setAddSub] = useState('');
-  const [addsubSubtodo, setAddSubsub] = useState('');
-  const [clicked, setClicked] = useState(false);
-  const [subTodoupdate, setEditSubTodo] = useState(false);
   const [error, setError] = useState(false);
-  const [subSubTodoFlag, setSubsubTodo] = useState(false);
   const [subdtodoError, setSubtodoError] = useState(false);
   const [json, setJson] = useState([])
 
   useEffect(() => {
+    setJson([])
     axios.post(config.ip + '/setData', {
       uid: user.user.uid
     })
@@ -48,6 +42,7 @@ const ProfilePage = () => {
     })
 
     window.addEventListener('beforeunload', (e) => {
+      setJson([])
       axios.post(config.ip + '/removeSession')
       .then(function (response) {
         console.log(response);
@@ -80,9 +75,6 @@ const ProfilePage = () => {
     if (name === 'title') {
       setTitle(value);
     }
-    else if (name === 'todo') {
-      setTodo(value);
-    }
   }
 
   const onUpdateHandler = (event) => {
@@ -106,7 +98,6 @@ const ProfilePage = () => {
         console.log(response);
       })
       setError(false)
-      setTodo('');
       setTitle('');
     } else {
       setError(true)
@@ -124,12 +115,12 @@ const ProfilePage = () => {
   };
 
   const deleteTodo = (id) => {
-   
+    json.forEach(deleteItem(id));
+    setJson(json)
     axios.post(config.ip + '/deleteTodo', {
       id: id,
     })
     .then(function (response) {
-      console.log(response);
       getTodos()
     })
   }
@@ -159,7 +150,6 @@ const ProfilePage = () => {
       })
       .then(function (response) {
         getTodos()
-        console.log(response);
       })
       setSubtodoError(true)
       handleClose()
@@ -169,12 +159,20 @@ const ProfilePage = () => {
     }
   }
 
+  let updateItem = (id, text) => obj => {
+    if (obj.id === id) {
+      obj.name = text.name
+    }
+    else if (obj.subtodos)
+      return obj.subtodos.some(updateItem(id, text));
+  };
+
   const updateTodo = () => {
     if (editField.length != 0) {
+      json.forEach(updateItem(editId, {'name': editField}));
+
       axios.post(config.ip + '/updateTodo', {
-        id: editId,
-        title: editField,
-        
+        data : json
       })
       .then(function (response) {
         getTodos()
@@ -191,46 +189,8 @@ const ProfilePage = () => {
     setEditTodo(false)
     setSubTodo(false)
     setAddSub('');
-    setEditSubTodo(false)
-    setAddSubsub('')
     setEditField('');
     setSubtodoError(false)
-    setSubsubTodo(false)
-  }
-
-  const updateSubTodo = () => {
-    if (editField.length != 0) {
-      axios.post(config.ip + '/updateSubTodo', {
-        id: editId,
-        title: editField,
-        todoId: todoId
-      })
-      .then(function (response) {
-        getTodos()
-      })
-      setSubtodoError(false)
-      handleClose();
-    } else {
-      setSubtodoError(true)
-    }
-
-    if (addsubSubtodo != '') {
-      if (editField.length != 0) {
-        axios.post(config.ip + '/updateSubsubTodo', {
-          id: editId,
-          title: editField,
-          todoId: todoId,
-          subTodoId: addsubSubtodo
-        })
-        .then(function (response) {
-          getTodos()
-        })
-        setSubtodoError(false)
-        handleClose();
-      } else {
-        setSubtodoError(true)
-      }
-    }
   }
 
   const editTodo = (id, name) => {
@@ -241,9 +201,7 @@ const ProfilePage = () => {
 
   const addSubtodos = (id) => {
     setSubTodo(true)
-    setClicked(true)
     setEditId(id)
-    setTodo('');
     setTitle('');
   }
 
@@ -252,24 +210,24 @@ const ProfilePage = () => {
       return <Todo key={ob.id} data={ob} type="child" />;
     });
 
-    return (<div style={{ paddingLeft: "10px" }}>
-      <div style={{ display: "flex", 'marginTop': "-7px" }}>
+    return (<div className="divContainer">
+      <div>
         <li className="todoTitle" >{data.name}</li>
-        <DeleteIcon className='deleteIcon' style={{ "marginLeft": "10px" }} onClick={() => deleteTodo(data.id)} />
-        <EditIcon className='deleteIcon' style={{ "marginLeft": "8px" }} onClick={() => editTodo(data.id, data.name)}></EditIcon>
-        <AddIcon onClick={() => addSubtodos(data.id)} style={{ "marginLeft": "8px", "color": "blue" }} className='deleteIcon' />
+        <DeleteIcon className='deleteIcon' onClick={() => deleteTodo(data.id)} />
+        <EditIcon className='editIcon' onClick={() => editTodo(data.id, data.name)}></EditIcon>
+        <AddIcon className='addIcon' onClick={() => addSubtodos(data.id)} />
       </div>
       <div>{subTodo}</div>
     </div>
     );
   };
 
+  /* Used to show the list of todos and subTodos */
   let list = []
-
   if (todos != '') {
     list = json.map((ob,i) => {
-      return <Grid container key={i} xs={3} spacing={2} className="todosDiv" style={{ "margin": '10px' }} >
-        <div style={{ 'display': 'flex' }}>
+      return <Grid container key={i} xs={3} spacing={2} className="todosDiv" >
+        <div>
           <Todo key={ob.id} data={ob} />
         </div>
       </Grid>
@@ -280,16 +238,16 @@ const ProfilePage = () => {
     <div className="container">
       <Grid container xs={12} spacing={2} className="profileLeft" >
         <Grid container xs={11} spacing={2}>
-          <div style={{ "marginLeft": '11px', 'display': "flex" }}>
+          <div className="divFlex">
             {user.user.emailVerified == true ?
               <img src={user.user.photoURL} className="profileImage" /> :
               <img src={image} className="profileImage" />}
-            <div style={{ 'marginLeft': "20px" }}>
-              <div style={{ 'marginTop': '23px' }}>
-                <div style={{ 'fontSize': '15px' }}>Display Name:- {user.user.displayName}</div>
+            <div className="userDetails">
+              <div className="spaceTop">
+                <div>Display Name:- {user.user.displayName}</div>
               </div>
-              <div style={{ 'marginTop': '10px' }}>
-                <div style={{ 'fontSize': '15px' }}>Email Id:- {user.user.email}</div>
+              <div className='emailDiv'>
+                <div>Email Id:- {user.user.email}</div>
               </div>
             </div>
           </div>
@@ -300,14 +258,14 @@ const ProfilePage = () => {
         </Grid>
       </Grid>
 
-      <Grid container xs={12} spacing={2} className="todoContainer" style={{ "marginTop": "22px" }}>
-        <Grid container xs={12} spacing={2} style={{ 'marginTop': '10px', 'marginLeft': "15px", 'marginBottom': '10px' }}>
-          <p className="addTodo" style={{ "textAlign": "none", "marginLeft": "22px" }} >Add a Todo</p>
+      <Grid container xs={12} spacing={2} className="todoContainer">
+        <Grid container xs={12} spacing={2} >
+          <p className="addTodo">Add a Todo</p>
           <Grid container xs={3}>
             <TextField id="standard-basic"
               label="Todo Title"
               name='title'
-              style={{ 'marginLeft': '25px', "width": "92%" }}
+              className='divTodo'
               value={title}
               onChange={(event) => onChangeHandler(event)}
             />
@@ -325,7 +283,7 @@ const ProfilePage = () => {
       </Grid>
 
       <Dialog open={editTodoFlag} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Edit Title</DialogTitle>
+        <DialogTitle id="form-dialog-title">Edit Item</DialogTitle>
         <DialogContent>
           <TextField id="standard-basic"
             label="Todo Title"
@@ -335,7 +293,7 @@ const ProfilePage = () => {
             onChange={(event) => onUpdateHandler(event)}
           />
 
-          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div> : ''}
+          {subdtodoError ? <div className='errorMessageTodo'>Please enter a value</div> : ''}
 
         </DialogContent>
         <DialogActions>
@@ -343,30 +301,6 @@ const ProfilePage = () => {
             Cancel
           </Button>
           <Button onClick={updateTodo} color="primary">
-            Update
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={subTodoupdate} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Edit Sub-Todo</DialogTitle>
-        <DialogContent>
-          <TextField id="standard-basic"
-            label="Write a Todo"
-            name='updateTodo'
-            value={editField}
-            style={{ "width": "80%" }}
-            onChange={(event) => onUpdateHandler(event)}
-          />
-
-          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div> : ''}
-
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={updateSubTodo} color="primary">
             Update
           </Button>
         </DialogActions>
@@ -383,7 +317,7 @@ const ProfilePage = () => {
             onChange={(event) => onSubHandler(event)}
           />
 
-          {subdtodoError ? <div className='errorMessage' style={{ 'marginLeft': '-2px', 'marginTop': '14px' }}>Please enter a value</div> : ''}
+          {subdtodoError ? <div className='errorMessageSubTodo'>Please enter a value</div> : ''}
 
         </DialogContent>
         <DialogActions>
@@ -406,3 +340,4 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps)(ProfilePage);
+

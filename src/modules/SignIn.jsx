@@ -13,10 +13,10 @@ const SignIn = () => {
     const [error, setError] = useState(null);
     const user = useContext(UserContext);
 
+    /* SignIn using email id and password */
     const signInWithEmailAndPasswordHandler = (event, email, password) => {
         event.preventDefault();
         auth.signInWithEmailAndPassword(email, password)
-        
         .catch(error => {
           setError("Error signing in with password and email!");
           console.error("Error signing in with password and email", error);
@@ -35,28 +35,27 @@ const SignIn = () => {
     };
 
     return (
-        <div class="main">
-            <p class="sign" >Sign in</p>
-            <Grid container spacing={3} style={{ 'marginLeft': '30px' }} >
+        <div className="main">
+            <p className="sign" >Sign in</p>
+            <Grid container spacing={3} className="signInContainer">
                 <Grid item xs={12}>
                     <TextField id="standard-basic"
                         label="Email" value={email}
                         name='userEmail'
-                        style={{"width":"75%"}}
-                        className='inputBox'
+                        className='bigTextField'
                         onChange={(event) => onChangeHandler(event)} />
                 </Grid>
                 <Grid item xs={12}>
                     <TextField id="standard-password-input"
                         label="Password"
                         type="password"
-                        style={{"width":"75%"}}
+                        className='bigTextField'
                         autoComplete="current-password"
                         name='userPassword'
                         value={password} onChange={(event) => onChangeHandler(event)} />
                 </Grid>
                 <Grid item xs={12}>
-                    <Button className="submit" style={{"width":"76%"}} onClick={(event) => { signInWithEmailAndPasswordHandler(event, email, password,"clicked") }}>Sign in</Button>
+                    <Button className="signInSubmit" onClick={(event) => { signInWithEmailAndPasswordHandler(event, email, password,"clicked") }}>Sign in</Button>
                 </Grid>
 
                 <Grid item xs={2}></Grid>
@@ -67,19 +66,19 @@ const SignIn = () => {
                 </Grid>
 
                 <Grid item xs={12}>
-                    <Button variant="contained" style={{"width":"76%"}} color="primary" className="submit" onClick={signInWithGoogle}>Sign in with Google</Button>
+                    <Button variant="contained" color="primary" className="signInSubmit" onClick={signInWithGoogle}>Sign in with Google</Button>
                 </Grid>
 
                 <Grid item xs={8}>
                     {error !== null && (
-                        <div style={{'fontSize': '11px','color': 'red'}}>
+                        <div className='signInError'>
                             {error}
                         </div>
                     )}
                 </Grid>
 
                 <Grid item xs={8}>
-                    <p style={{'fontSize':'13px'}}>Don't have an account?{" "}
+                    <p className='noAccount'>Don't have an account?{" "}
                         <Link to="signUp" className="text-blue-500 hover:text-blue-600">
                             Sign up here
                         </Link>{" "}

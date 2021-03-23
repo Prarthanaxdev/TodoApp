@@ -1,5 +1,5 @@
 import React from "react";
-import Application from "./modules/Application";
+import Application from "./modules/Application.jsx";
 import UserProvider from "./UserProvider";
 import {Provider} from 'react-redux';
 import store from "./store";

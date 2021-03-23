@@ -81,6 +81,93 @@ label + .MuiInput-formControl {
   margin-top: 18px;
   color: #777272;
   cursor: pointer;
+  margin-left : 10px; 
+}
+
+.editIcon{
+  font-size: 19px !important;
+  margin-top: 18px;
+  color: #777272;
+  cursor: pointer;
+  margin-left : 8px; 
+}
+
+.editIcon{
+  font-size: 19px !important;
+  margin-top: 18px;
+  color: #777272;
+  cursor: pointer;
+  margin-left : 8px; 
+}
+
+.addIcon{
+  margin-left: 11px;
+  color: blue !important;
+  font-size: 19px !important;
+  margin-top: 18px;
+  color: #777272;
+  cursor: pointer;
+  margin-top: 17px;
+}
+
+.todosDiv > div {
+  display: flex;
+}
+
+.errorMessage{
+  margin-top: 21px;
+  margin-left: 20px;
+  color: red;
+}
+
+.errorMessageTodo{
+  margin-top: 21px;
+  margin-left: 20px;
+  color: red;
+  margin-left: -2px;
+  margin-top: 14px;
+}
+
+.errorMessageSubTodo{
+  margin-top: 21px;
+  margin-left: 20px;
+  color: red;
+  margin-left: -2px;
+  margin-top: 14px;
+}
+
+.divContainer {
+  padding-left: 10px; 
+}
+
+.divContainer > div {
+  display: flex;
+  margin-top: -5px;
+}
+
+.divFlex{
+  margin-left: 11px;
+  display: flex;
+}
+
+.userDetails {
+  margin-left : 20px;
+}
+
+.spaceTop{
+  margin-top: 23px
+}
+
+.spaceTop > div {
+  font-size: 15px;
+}
+
+.emailDiv {
+  margin-top: 10px;
+}
+
+.emailDiv > div {
+  font-size: 15px;
 }
 
 .MuiDialog-paperWidthSm {
@@ -100,6 +187,7 @@ label + .MuiInput-formControl {
   padding: 20px;   
   box-shadow: 0px 11px 35px 2px rgba(0, 0, 0, 0.14);
   border-radius: 15px;
+  margin-top: 22px !important; 
 }
 
 .addTodo{
@@ -108,6 +196,7 @@ label + .MuiInput-formControl {
   font-weight: bold;
   font-size: 23px;
   text-align: center;
+  margin-left: 14px;
 }
 
 .todoAdd{
@@ -123,17 +212,38 @@ label + .MuiInput-formControl {
   height: 245px;
   overflow: auto;
   display: list-item !important;
+  margin: 10px !important;
 }
 
-
-.addIcon{
-  margin-left: 28px;
-  margin-top: 10px;
-  color: #0000FFFF
+.divTodo{
+  margin-left: 25px !important;
+  width: 93%;
 }
 
-.errorMessage{
-  margin-top: 21px;
-  margin-left: 20px;
+.signInContainer {
+  margin-left: 30px; 
+}
+
+.bigTextField {
+  width: 75%;
+}
+
+.noAccount {
+  font-size: 13px;
+}
+
+.signInSubmit {
+  cursor: pointer;
+  color: #fff !important;
+  background: linear-gradient(to right, #273eb0, #4093fb);
+  font-size: 13px !important;
+  box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.04) !important;
+  border-radius: 5em;
+  text-transform: none !important;
+  width: 76%; 
+} 
+
+.signInError {
+  font-size: 11px;
   color: red;
 }
