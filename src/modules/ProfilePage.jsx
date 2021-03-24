@@ -50,6 +50,7 @@ const ProfilePage = () => {
     });
   }, [])
 
+  
   /* Fetches Todos and SubTodos from redis cache */
   const getTodos = () => {
     let j = 0
